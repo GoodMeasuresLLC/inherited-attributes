@@ -2,23 +2,23 @@ require 'spec_helper'
 
 describe "Inherited Attributes" do
   let!(:root) {
-    Organization.create!(:name => "Root")
+    Node.create!(:name => "Root")
   }
   let!(:child) {
-    Organization.create!(:name => "Child", :parent => root)
+    Node.create!(:name => "Child", :parent => root)
   }
   let!(:grandchild) {
-    Organization.create!(:name => "Grandchild", :parent => child)
+    Node.create!(:name => "Grandchild", :parent => child)
   }
 
-  let(:default_column_value) {Organization.new.send(attribute)}
+  let(:default_column_value) {Node.new.send(attribute)}
   let(:inherited_attribute) {"inherited_#{attribute}"}
   let(:effective_attribute) {"effective_#{attribute}"}
 
   shared_examples_for "inherited attributes" do
     it "has a default" do
-      [:root, :child, :grandchild].each do |organization|
-        org = send(organization)
+      [:root, :child, :grandchild].each do |node|
+        org = send(node)
 
         expect(org.send(attribute)).to eq(default_column_value)
         expect(org.send(effective_attribute)).to eq(inherited_default)
@@ -89,7 +89,7 @@ describe "Inherited Attributes" do
     context "with a default" do
       let(:attribute) {'string_attribute_with_default'}
 
-      let(:inherited_default) {eval(Organization::STRING_DEFAULT)}
+      let(:inherited_default) {eval(Node::STRING_DEFAULT)}
 
       it_behaves_like "inherited attributes"
     end
@@ -108,7 +108,7 @@ describe "Inherited Attributes" do
     end
     context "with a default" do
       let(:attribute) {'integer_attribute_with_default'}
-      let(:inherited_default) {eval(Organization::INTEGER_DEFAULT)}
+      let(:inherited_default) {eval(Node::INTEGER_DEFAULT)}
 
       it_behaves_like "inherited attributes"
     end
@@ -127,7 +127,7 @@ describe "Inherited Attributes" do
     end
     context "with a default" do
       let(:attribute) {'float_attribute_with_default'}
-      let(:inherited_default) {eval(Organization::FLOAT_DEFAULT)}
+      let(:inherited_default) {eval(Node::FLOAT_DEFAULT)}
 
       it_behaves_like "inherited attributes"
     end
@@ -146,7 +146,7 @@ describe "Inherited Attributes" do
     end
     context "with a default" do
       let(:attribute) {'enumeration_attribute_with_default'}
-      let(:inherited_default) {eval(Organization::ENUMERATION_DEFAULT)}
+      let(:inherited_default) {eval(Node::ENUMERATION_DEFAULT)}
 
       let(:root_value) {'spanish'}
       let(:child_value) {'german'}
@@ -189,6 +189,17 @@ describe "Inherited Attributes" do
 
       it_behaves_like "inherited attributes"
     end
+  end
+
+  context "has one relationships" do
+    let(:attribute) {'account_name'}
+    let(:inherited_default) {nil}
+
+    let(:root_value) {"Cash"}
+    let(:child_value) {"Credit"}
+    let(:grandchild_value) {"Barter"}
+
+    it_behaves_like "inherited attributes"
   end
 
 end

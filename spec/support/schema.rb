@@ -1,7 +1,7 @@
 ActiveRecord::Schema.define do
   self.verbose = false
 
-  create_table :organizations, :force => true do |t|
+  create_table :nodes, :force => true do |t|
     t.string :name
 
     t.string  :string_attribute
@@ -21,5 +21,10 @@ ActiveRecord::Schema.define do
     t.boolean :boolean_attribute_with_true_default
 
     t.string :ancestry, :index => true
+  end
+
+  create_table :accounts, :force => true do |t|
+    t.references :node, :index => true, :foreign_key => true
+    t.string :name
   end
 end

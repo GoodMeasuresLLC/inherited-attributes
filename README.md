@@ -22,6 +22,19 @@ class Node < ActiveRecord::Base
   # integers: '<number>'
   # enumerations: '"<name of the enum>"'
   inherited_attribute :location, :default => '"Saint Louis"'
+
+  # Has-one relationships can also be inherited.
+  # With delegation, you can expose attributes on the effective or inherited account
+  # Or you can use the effective_account to get the inherited object
+  has_one :account
+  inherited_attribute :account
+  delegate :name, :to => :account, :prefix => true, :allow_nil => true
+  delegate :name, :to => :effective_account, :prefix => true, :allow_nil => true
+  delegate :name, :to => :inherited_account, :prefix => true, :allow_nil => true
+end
+
+class Account < ActiveRecord::Base
+  belongs_to :node
 end
 ```
 
@@ -64,6 +77,19 @@ grandchild.inherited_value  # 12 -- inherited from child
 root.inherited_location       # 'Saint Louis' -- using the default value
 child.inherited_location      # 'Saint Louis' -- Inherited from root
 grandchild.inherited_location # 'Boston'      -- Inherited from child
+
+# ------------------------------------------------------------------------------
+# Inherited Has-One relationships and attributes
+# ------------------------------------------------------------------------------
+child.create_account(:name => "Cash")
+
+root.effective_account_name        # nil
+child.effective_account_name       # 'Cash'
+grandchild.effective_account_name  # 'Cash' -- Inherited from child
+
+root.effective_account        # nil
+child.effective_account       # <#<Account:0x007fb561759b58 id: 1, name: "Cash", node_id: 2>
+grandchild.effective_account  # <#<Account:0x007fb561759b58 id: 1, name: "Cash", node_id: 2>
 
 ```
 

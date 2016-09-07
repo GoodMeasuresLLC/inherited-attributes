@@ -1,10 +1,24 @@
-class Organization < ActiveRecord::Base
+
+class Account < ActiveRecord::Base
+  belongs_to :node
+end
+
+class Node < ActiveRecord::Base
   STRING_DEFAULT = '"United States"'
   ENUMERATION_DEFAULT = '"english"'
   INTEGER_DEFAULT = '18'
   FLOAT_DEFAULT = '3.14159'
 
   has_ancestry
+
+  has_one :account
+  delegate :name, :to => :account, :prefix => true, :allow_nil => true
+  delegate :name, :to => :effective_account, :prefix => true, :allow_nil => true
+  delegate :name, :to => :inherited_account, :prefix => true, :allow_nil => true
+
+  def account_name=(val)
+    (self.account || self.build_account).name = val
+  end
 
   enum :enumeration_attribute => {
     :ruby => 1,
@@ -35,4 +49,6 @@ class Organization < ActiveRecord::Base
   inherited_attribute :boolean_attribute
   inherited_attribute :boolean_attribute_with_false_default, :default => 'false'
   inherited_attribute :boolean_attribute_with_true_default, :default => 'true'
+
+  inherited_attribute :account
 end
